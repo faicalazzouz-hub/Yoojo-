@@ -52,78 +52,146 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
   font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;background:var(--ink);
+  border:2px solid var(--ink);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.tab{background:var(--card);padding:13px 8px;text-align:center;font-family:var(--mono);
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;cursor:pointer}
+.tab.on{background:var(--ink);color:var(--kraft)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
 .grid2 .full{grid-column:1/-1}
-.checks{display:grid;gap:9px;margin:14px 0 4px;border-top:2px dashed var(--kraft-deep);padding-top:14px}
-.chk{display:flex;align-items:center;gap:11px;font-size:14.5px;cursor:pointer}
+.sect{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-soft);border-top:2px dashed var(--kraft-deep);padding-top:13px;margin:15px 0 11px}
+.sect.first{border-top:0;padding-top:0;margin-top:0}
+.chk{display:flex;align-items:center;gap:11px;font-size:14.5px;cursor:pointer;padding:5px 0}
 .chk input{width:22px;height:22px;flex:0 0 auto;accent-color:var(--marker)}
+.creneau{background:var(--marker);border-radius:3px;padding:14px;margin-bottom:16px}
+.creneau label{color:rgba(255,255,255,.78)}
+.creneau input{margin-top:5px}
+.creneau .note{font-size:12px;color:rgba(255,255,255,.8);margin-top:8px;line-height:1.45}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.chip{background:#fff;border:1.5px solid var(--kraft-deep);border-radius:3px;padding:11px 10px;
+  text-align:center;font-size:14px;font-weight:500;cursor:pointer;line-height:1.25}
+.chip span{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin-top:3px}
+.chip.on{background:var(--marker);color:#fff;border-color:var(--marker)}
+.chip.on span{color:rgba(255,255,255,.72)}
 .out{margin-top:20px;border-top:3px solid var(--ink);padding-top:18px}
 .big{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;background:var(--kraft-deep);
   border:1.5px solid var(--kraft-deep);border-radius:3px;overflow:hidden}
-.big div{background:#fff;padding:14px 13px}
-.big .n{font-family:var(--disp);font-weight:900;font-size:30px;line-height:1;letter-spacing:-.02em}
-.big .l{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+.big>div{background:#fff;padding:14px 13px}
+.big .n{font-family:var(--disp);font-weight:900;font-size:29px;line-height:1;letter-spacing:-.02em}
+.big .l{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
   color:var(--ink-soft);margin-top:5px}
-.total{background:var(--marker)!important;color:#fff}
-.total .l{color:rgba(255,255,255,.72)}
+.taux{background:var(--marker)!important;color:#fff}
+.taux .l{color:rgba(255,255,255,.72)}
 .detail{margin-top:14px;font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);display:grid;gap:5px}
 .detail b{color:var(--ink)}
-.alerte{margin-top:13px;padding:11px 13px;border-radius:2px;font-size:13.5px;line-height:1.45}
+.alerte{margin-top:11px;padding:11px 13px;border-radius:2px;font-size:13.5px;line-height:1.45}
 .alerte.ok{background:#E4EADB;border-left:4px solid var(--olive)}
+.alerte.mid{background:#F7EEDA;border-left:4px solid #B67B12}
 .alerte.ko{background:#F6E0DD;border-left:4px solid var(--tape)}
-.pitch{margin-top:16px;font-size:14.5px;white-space:pre-wrap;background:#fff;
+.pitch{margin-top:14px;font-size:14.5px;white-space:pre-wrap;background:#fff;
   border:1px solid var(--kraft-deep);border-radius:2px;padding:12px}
-.cap{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.6}
+.cap{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:13px;line-height:1.6}
 </style></head><body><div class="wrap">
 <header>
   <div class="eyebrow">Avant de postuler</div>
-  <h1>Combien<br>je propose ?</h1>
-  <p class="sub">Estime les heures, cale ton taux, vérifie ce qu'il te reste vraiment. Plafond fixé à 70 €/h.</p>
+  <h1>Quel taux<br>je propose ?</h1>
+  <p class="sub">Le créneau est fixé par le client. Ton seul levier, c'est le prix — et savoir si le temps annoncé tient debout.</p>
 </header>
 
 <section>
+  <div class="creneau">
+    <div class="field">
+      <label for="c-creneau">Créneau annoncé par le client (heures)</label>
+      <input type="number" id="c-creneau" value="2.5" min="0.5" step="0.5" inputmode="decimal">
+    </div>
+    <p class="note">C'est cette durée qui sera facturée. Tout dépassement dépendra du bon vouloir du client dans l'app.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" data-tab="meuble">Meubles</div>
+    <div class="tab" data-tab="demenagement">Déménagement</div>
+  </div>
+
   <div class="card">
-    <div class="grid2">
-      <div class="field full"><label for="type">Type de mission</label>
-        <select id="type">
-          <option value="1">Un meuble ou quelques objets</option>
-          <option value="1.5">Débarras d'encombrants</option>
-          <option value="2" selected>Studio ou T1</option>
-          <option value="3">T2</option>
-          <option value="4.5">T3</option>
-          <option value="6">T4 et plus</option>
-        </select></div>
-      <div class="field"><label for="etages">Étages sans ascenseur</label>
-        <input type="number" id="etages" value="0" min="0" max="12" step="1" inputmode="numeric"></div>
-      <div class="field"><label for="demont">Meubles à démonter</label>
-        <input type="number" id="demont" value="0" min="0" max="15" step="1" inputmode="numeric"></div>
-      <div class="field"><label for="kmInter">Km entre adresses</label>
-        <input type="number" id="kmInter" value="5" min="0" step="1" inputmode="decimal"></div>
-      <div class="field"><label for="kmMoi">Mon trajet aller (km)</label>
-        <input type="number" id="kmMoi" value="10" min="0" step="1" inputmode="decimal"></div>
+    <div id="p-meuble">
+      <div class="sect first">Meubles à déplacer</div>
+      <div class="grid2">
+        <div class="field"><label for="m-p">Petite taille</label>
+          <input type="number" id="m-p" value="0" min="0" step="1" inputmode="numeric"></div>
+        <div class="field"><label for="m-m">Moyenne taille</label>
+          <input type="number" id="m-m" value="0" min="0" step="1" inputmode="numeric"></div>
+        <div class="field"><label for="m-g">Grande taille</label>
+          <input type="number" id="m-g" value="0" min="0" step="1" inputmode="numeric"></div>
+        <div class="field"><label for="m-tg">Très grande taille</label>
+          <input type="number" id="m-tg" value="1" min="0" step="1" inputmode="numeric"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="m-camion" checked> Besoin d'amener un camion</label>
+      <label class="chk"><input type="checkbox" id="m-demont"> Démontage nécessaire</label>
     </div>
 
-    <div class="checks">
-      <label class="chk"><input type="checkbox" id="portage"> Portage long (plus de 30 m jusqu'au camion)</label>
-      <label class="chk"><input type="checkbox" id="cartons"> Cartons pas encore faits</label>
-      <label class="chk"><input type="checkbox" id="weekend"> Samedi, dimanche ou jour férié</label>
-      <label class="chk"><input type="checkbox" id="horaire"> Avant 8 h ou après 20 h</label>
-      <label class="chk"><input type="checkbox" id="urgence"> Dans moins de 48 h</label>
+    <div id="p-demenagement" style="display:none">
+      <div class="sect first">Volume annoncé</div>
+      <div class="grid2">
+        <div class="field full"><label for="d-vol">Volume (m³)</label>
+          <input type="number" id="d-vol" value="12" min="1" step="1" inputmode="decimal"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="d-lourds" checked> Objets lourds à déménager</label>
+      <label class="chk"><input type="checkbox" id="d-cartons"> Cartons pas encore faits</label>
+      <label class="chk"><input type="checkbox" id="d-camion" checked> Je fournis le camion</label>
     </div>
+
+    <div class="sect">Accès aux deux adresses</div>
+    <div class="grid2">
+      <div class="field"><label for="a-etage1">Étage départ</label>
+        <input type="number" id="a-etage1" value="3" min="0" max="15" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="a-etage2">Étage arrivée</label>
+        <input type="number" id="a-etage2" value="1" min="0" max="15" step="1" inputmode="numeric"></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="a-asc1" checked> Ascenseur au départ</label>
+    <label class="chk"><input type="checkbox" id="a-asc2" checked> Ascenseur à l'arrivée</label>
+
+    <div class="sect">Distances</div>
+    <div class="grid2">
+      <div class="field full"><label for="a-inter">Entre les deux adresses (km) — indiqué sur l'annonce</label>
+        <input type="number" id="a-inter" value="3" min="0" step="1" inputmode="decimal"></div>
+    </div>
+    <label style="display:block;margin-bottom:7px">Où es-tu par rapport au départ ?</label>
+    <div class="chips" id="a-loin">
+      <div class="chip on" data-km="4">Tout près<span>≈ 4 km</span></div>
+      <div class="chip" data-km="10">Dans le secteur<span>≈ 10 km</span></div>
+      <div class="chip" data-km="20">Autre bout<span>≈ 20 km</span></div>
+      <div class="chip" data-km="40">Loin<span>≈ 40 km</span></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="a-derniere"> Dernière mission de la journée, je rentre après</label>
+    <div class="grid2" id="bloc-retour" style="display:none;margin-top:9px">
+      <div class="field full"><label for="a-retourkm">De l'arrivée jusqu'à chez moi (km)</label>
+        <input type="number" id="a-retourkm" value="15" min="0" step="1" inputmode="decimal"></div>
+    </div>
+
+    <div class="sect">Contexte</div>
+    <div class="grid2">
+      <div class="field full"><label for="a-postul">Prestataires ayant déjà postulé</label>
+        <input type="number" id="a-postul" value="3" min="0" step="1" inputmode="numeric"></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="a-we"> Samedi, dimanche ou férié</label>
+    <label class="chk"><input type="checkbox" id="a-hor"> Avant 8 h ou après 20 h</label>
+    <label class="chk"><input type="checkbox" id="a-urg"> Dans moins de 48 h</label>
 
     <div class="out">
       <div class="big">
-        <div class="total"><div class="n" id="o-total">—</div><div class="l">Total à proposer</div></div>
-        <div><div class="n" id="o-taux">—</div><div class="l">Taux horaire</div></div>
-        <div><div class="n" id="o-heures">—</div><div class="l">Durée à annoncer</div></div>
+        <div class="taux"><div class="n" id="o-taux">—</div><div class="l">Taux à proposer</div></div>
+        <div><div class="n" id="o-total">—</div><div class="l">Total facturé</div></div>
+        <div><div class="n" id="o-heures">—</div><div class="l">Durée réelle estimée</div></div>
         <div><div class="n" id="o-reel">—</div><div class="l">Net réel par heure</div></div>
       </div>
       <div class="detail" id="o-detail"></div>
-      <div id="o-alerte"></div>
+      <div id="o-alertes"></div>
       <div class="pitch" id="o-pitch"></div>
       <button type="button" id="o-copy">Copier la candidature</button>
+      <p class="cap" style="margin-top:9px">Le message ne contient aucun prix : ton taux se saisit dans le champ tarif de Yoojo. Message volontairement court : le client compare plusieurs profils, il survole.</p>
     </div>
-    <p class="cap">Base 55 €/h, +5 par majoration, plafond 70 €/h. Net calculé après 7 % de frais Yoojo, 0,20 €/km de carburant et d'usure, trajet estimé à 25 km/h.</p>
+    <p class="cap">Base 55 €/h camion inclus, 45 €/h sans. +5 par majoration, +5 par heure de dépassement prévisible, −5 si plus de 8 candidats. Plafond 70 €/h, plancher 40 €/h. Net calculé après 7 % de frais Yoojo et 0,20 €/km sur l'approche et la mission. Le retour n'est compté que sur la dernière mission de la journée, avec la distance réelle que tu saisis.</p>
   </div>
 </section>
 <footer>Kit terrain Yoojo · Nishan</footer>
@@ -157,68 +225,156 @@ function delLocal(k){try{localStorage.removeItem(k);}catch(e){}}
 </script>
 
 <script>
-var FRAIS=0.07, VITESSE=25, COUT_KM=0.20, MARGE=0.25, PLAFOND=70, BASE=55;
-var els=['type','etages','demont','kmInter','kmMoi','portage','cartons','weekend','horaire','urgence'];
-function v(id){var e=document.getElementById(id);return e.type==='checkbox'?e.checked:parseFloat(e.value)||0;}
-function hh(x){var m=Math.round(x*60);return Math.floor(m/60)+' h '+(m%60?String(m%60).padStart(2,'0'):'00');}
+var FRAIS=0.07,COUT_KM=0.20,MARGE=0.30,PLAFOND=70,PLANCHER=40;
+var mode='meuble',approche=4;
+function v(id){var e=document.getElementById(id);return !e?0:(e.type==='checkbox'?e.checked:(parseFloat(e.value)||0));}
+function vitesse(km){return km<=15?20:(km<=40?32:50);}
+function hh(x){if(x<=0)return '0 h 00';var m=Math.round(x*60);return Math.floor(m/60)+' h '+String(m%60).padStart(2,'0');}
+
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+    t.classList.add('on');mode=t.dataset.tab;
+    document.getElementById('p-meuble').style.display=mode==='meuble'?'':'none';
+    document.getElementById('p-demenagement').style.display=mode==='demenagement'?'':'none';
+    maj();
+  });
+});
 
 function maj(){
-  var heures=v('type');
-  heures+=v('etages')*0.4;
-  heures+=v('demont')*0.4;
-  heures+=v('kmInter')/VITESSE;
-  if(v('portage'))heures+=0.5;
-  if(v('cartons'))heures+=1;
-  heures=Math.max(1,Math.round(heures*2)/2);
+  var creneau=v('c-creneau'),reelH=0,camion=true;
 
-  var taux=BASE;
-  if(v('weekend'))taux+=5;
-  if(v('horaire'))taux+=5;
-  if(v('urgence'))taux+=5;
-  if(heures<=1.5)taux+=5;
-  taux=Math.min(PLAFOND,taux);
+  if(mode==='meuble'){
+    reelH=v('m-p')*0.15+v('m-m')*0.3+v('m-g')*0.5+v('m-tg')*0.75;
+    camion=v('m-camion');
+    if(camion)reelH+=0.5;
+    if(v('m-demont'))reelH+=0.5;
+  } else {
+    reelH=v('d-vol')*0.25;
+    camion=v('d-camion');
+    if(v('d-lourds'))reelH+=0.5;
+    if(v('d-cartons'))reelH+=1;
+    if(camion)reelH+=0.5;
+  }
+  reelH+=v('a-etage1')*(v('a-asc1')?0.12:0.4);
+  reelH+=v('a-etage2')*(v('a-asc2')?0.12:0.4);
+  var inter=v('a-inter'),tInter=inter/vitesse(inter);
+  reelH+=tInter;
+  reelH=Math.max(0.5,Math.round(reelH*4)/4);
 
-  var total=taux*heures;
-  var kmMoi=v('kmMoi');
-  var net=total*(1-FRAIS)-(2*kmMoi+v('kmInter'))*COUT_KM;
-  var engage=heures+(2*kmMoi)/VITESSE+MARGE;
+  var depass=Math.max(0,reelH-creneau);
+
+  var taux=camion?55:45;
+  if(v('a-we'))taux+=5;
+  if(v('a-hor'))taux+=5;
+  if(v('a-urg'))taux+=5;
+  if(creneau<=1.5)taux+=5;
+  taux+=Math.ceil(depass)*5;
+  var post=v('a-postul');
+  if(post>=8)taux-=5;
+  taux=Math.max(PLANCHER,Math.min(PLAFOND,Math.round(taux/5)*5));
+
+  var total=taux*creneau;
+  var aller=approche,retour=v('a-derniere')?v('a-retourkm'):0;
+  var kmTotal=aller+inter+retour;
+  var net=total*(1-FRAIS)-kmTotal*COUT_KM;
+  var tPerso=aller/vitesse(aller)+retour/vitesse(retour);
+  var engage=Math.max(creneau,reelH)+tPerso+MARGE;
   var reel=engage>0?net/engage:0;
 
-  document.getElementById('o-total').textContent=total.toFixed(0)+' \u20AC';
+  var totalSup=taux*reelH;
+  var netSup=totalSup*(1-FRAIS)-kmTotal*COUT_KM;
+  var reelSup=engage>0?netSup/engage:0;
+
   document.getElementById('o-taux').textContent=taux+' \u20AC';
-  document.getElementById('o-heures').textContent=hh(heures);
+  document.getElementById('o-total').textContent=total.toFixed(0)+' \u20AC';
+  document.getElementById('o-heures').textContent=hh(reelH);
   document.getElementById('o-reel').textContent=reel.toFixed(0)+' \u20AC';
 
-  document.getElementById('o-detail').innerHTML=
-    '<div>Temps engag\u00E9 <b>'+hh(engage)+'</b> \u00B7 dont trajet '+hh((2*kmMoi)/VITESSE)+'</div>'+
+  var d='<div>Temps engag\u00E9 <b>'+hh(engage)+'</b> \u00B7 dont '+hh(tPerso)+' de trajet perso</div>'+
+    '<div>Kilom\u00E8tres <b>'+kmTotal.toFixed(0)+' km</b> ('+aller.toFixed(0)+' approche, '+inter.toFixed(0)+' mission'+(retour>0?', '+retour.toFixed(0)+' retour':'')+') \u00B7 '+(kmTotal*COUT_KM).toFixed(0)+' \u20AC</div>'+
     '<div>Net encaiss\u00E9 <b>'+net.toFixed(0)+' \u20AC</b> apr\u00E8s frais et carburant</div>';
+  if(depass>0){
+    d+='<div style="color:var(--tape)">Si heures sup accept\u00E9es : <b style="color:var(--tape)">'+totalSup.toFixed(0)+' \u20AC</b> soit '+reelSup.toFixed(0)+' \u20AC/h r\u00E9els</div>';
+  }
+  document.getElementById('o-detail').innerHTML=d;
 
-  var a=document.getElementById('o-alerte');
-  if(reel>=35){a.className='alerte ok';a.textContent='Bonne mission. Poste sans h\u00E9siter.';}
-  else if(reel>=28){a.className='alerte ok';a.textContent='Correct. \u00C0 prendre si ta journ\u00E9e n\u2019est pas d\u00E9j\u00E0 remplie par mieux.';}
-  else {a.className='alerte ko';a.textContent='Sous ton seuil. Soit tu remontes le taux, soit tu passes \u2014 le trajet mange la marge.';}
+  var al='';
+  if(depass>=1){
+    al+='<div class="alerte ko">Le cr\u00E9neau est sous-estim\u00E9 de '+hh(depass)+'. Tu ne peux pas proposer plus d\u2019heures : ton seul levier est le prix, et pr\u00E9venir le client d\u00E8s la candidature pour qu\u2019il accepte les heures sup le jour J.</div>';
+  } else if(depass>0){
+    al+='<div class="alerte mid">L\u00E9ger d\u00E9passement pr\u00E9visible ('+hh(depass)+'). Annonce-le pendant la mission, pas \u00E0 la fin.</div>';
+  } else {
+    al+='<div class="alerte ok">Le cr\u00E9neau annonc\u00E9 est r\u00E9aliste.</div>';
+  }
 
-  document.getElementById('o-pitch').textContent=
-    'Bonjour, je suis disponible pour votre mission.\n\n'+
-    'Je viens avec mon utilitaire, \u00E9quip\u00E9 : diable, sangles, couvertures de protection et housses. '+
-    'Je g\u00E8re le d\u00E9montage et le remontage si besoin.\n\n'+
-    'D\u2019apr\u00E8s votre description, je table sur '+hh(heures)+' \u00E0 '+taux+' \u20AC/h, soit environ '+total.toFixed(0)+' \u20AC. '+
-    'Si on va plus vite, vous payez moins.\n\n'+
-    'Deux pr\u00E9cisions pour estimer juste : quel \u00E9tage au d\u00E9part et \u00E0 l\u2019arriv\u00E9e, avec ou sans ascenseur ? '+
-    'Et le camion peut-il se garer devant les deux adresses ?\n\n'+
-    'Je peux bloquer la date d\u00E8s aujourd\u2019hui.';
+  if(reel>=35)al+='<div class="alerte ok">Bonne mission au tarif propos\u00E9. Poste sans h\u00E9siter.</div>';
+  else if(reel>=28)al+='<div class="alerte mid">Correct. \u00C0 prendre si ta journ\u00E9e n\u2019est pas d\u00E9j\u00E0 remplie par mieux.</div>';
+  else al+='<div class="alerte ko">Sous ton seuil m\u00EAme \u00E0 '+taux+' \u20AC/h. Le cr\u00E9neau est trop court ou les trajets trop longs \u2014 passe ton tour.</div>';
+
+  if(post>=8)al+='<div class="alerte mid">'+post+' candidats d\u00E9j\u00E0. Le taux a \u00E9t\u00E9 baiss\u00E9 de 5 \u20AC pour rester dans la course, mais v\u00E9rifie que \u00E7a reste rentable.</div>';
+  else if(post<=2)al+='<div class="alerte ok">Peu de concurrence. Tiens ton prix, ne brade pas.</div>';
+
+  if(approche>=20&&creneau<3)al+='<div class="alerte ko">'+approche.toFixed(0)+' km d\u2019approche pour '+hh(creneau)+' factur\u00E9es. R\u00E8gle n\u00B01 : au-del\u00E0 de 20 km, rien sous 3 h.</div>';
+
+  document.getElementById('o-alertes').innerHTML=al;
+
+  var L=[];
+
+  // 1. accroche + \u00E9quipement, en une phrase
+  var acc;
+  if(mode==='meuble'){
+    if(v('m-tg')>0)acc='Le mobilier hors normes, c\u2019est mon quotidien';
+    else if(v('m-g')>0)acc='J\u2019ai l\u2019habitude du gros mobilier';
+    else acc='Je fais ce type de d\u00E9placement toutes les semaines';
+  } else {
+    acc='Ce volume, je le g\u00E8re r\u00E9guli\u00E8rement';
+  }
+  L.push('Bonjour, '+acc.charAt(0).toLowerCase()+acc.slice(1)+'. '+
+    (camion?'Je viens avec mon utilitaire \u00E9quip\u00E9 : diable, sangles, couvertures.':'J\u2019apporte diable, sangles et couvertures de protection.'));
+
+  // 2. deux diff\u00E9renciateurs maximum
+  var d=[];
+  if((!v('a-asc1')&&v('a-etage1')>0)||(!v('a-asc2')&&v('a-etage2')>0))d.push('Escaliers \u00E9troits sans souci');
+  if((mode==='meuble'&&v('m-demont'))||(mode==='demenagement'&&v('d-lourds')))d.push('Je d\u00E9monte et remonte si \u00E7a ne passe pas');
+  if(inter>30)d.push('Trajet longue distance inclus, sans transbordement');
+  if(mode==='demenagement'&&v('d-cartons'))d.push('Je peux aider \u00E0 finir les cartons');
+  if(d.length)L.push(d.slice(0,2).join('. ')+'.');
+
+  // 3. co\u00E9quipier, sur les missions physiques
+  var lourd = (depass>=1)
+    || (mode==='demenagement' && (v('d-vol')>=15 || v('d-lourds')))
+    || (mode==='meuble' && v('m-tg')>=1)
+    || ((!v('a-asc1')&&v('a-etage1')>=2)||(!v('a-asc2')&&v('a-etage2')>=2));
+  if(lourd)L.push('Co\u00E9quipier possible moyennant un suppl\u00E9ment si vous voulez aller plus vite, dites-le-moi.');
+
+  // 4. disponibilit\u00E9, affirmative
+  L.push(v('a-urg')?'Cr\u00E9neau libre de mon c\u00F4t\u00E9, je peux intervenir d\u00E8s aujourd\u2019hui.'
+                   :'Cr\u00E9neau libre de mon c\u00F4t\u00E9, vous pouvez r\u00E9server directement.');
+
+  // 5. dur\u00E9e, une phrase seulement
+  if(depass>=1)L.push('\u00C0 noter : avec les \u00E9tages et la distance, '+hh(creneau)+' risque d\u2019\u00EAtre juste. Je vous pr\u00E9viendrai en cours de mission.');
+
+  document.getElementById('o-pitch').textContent=L.join('\n');
 }
-els.forEach(function(id){
-  var e=document.getElementById(id);
+document.getElementById('a-derniere').addEventListener('change',function(){
+  document.getElementById('bloc-retour').style.display=this.checked?'':'none';
+});
+document.querySelectorAll('#a-loin .chip').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('#a-loin .chip').forEach(function(x){x.classList.remove('on');});
+    c.classList.add('on');approche=parseFloat(c.dataset.km);maj();
+  });
+});
+document.querySelectorAll('input').forEach(function(e){
   e.addEventListener('input',maj);e.addEventListener('change',maj);
 });
 document.getElementById('o-copy').addEventListener('click',function(){
   var b=this,t=document.getElementById('o-pitch').innerText;
-  var fini=function(){b.textContent='Copi\u00E9';b.classList.add('copied');
+  var f=function(){b.textContent='Copi\u00E9';b.classList.add('copied');
     setTimeout(function(){b.textContent='Copier la candidature';b.classList.remove('copied');},1600);};
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(fini,function(){sec(t,fini);});
-  }else sec(t,fini);
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(f,function(){sec(t,f);});}
+  else sec(t,f);
 });
 function sec(t,f){var z=document.createElement('textarea');z.value=t;z.style.position='fixed';z.style.opacity='0';
   document.body.appendChild(z);z.select();try{document.execCommand('copy');f();}catch(e){}document.body.removeChild(z);}
