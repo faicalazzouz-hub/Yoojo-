@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Messages Yoojo</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Messages">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#E8E0D2">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<style>
+:root{
+  --kraft:#E8E0D2;--kraft-deep:#D6C9B2;--ink:#1A1714;--ink-soft:#5A5147;
+  --tape:#C93A2B;--marker:#1B4796;--olive:#6B7350;--card:#F5F0E6;--accent:#C93A2B;
+  --disp:-apple-system-headline,"SF Pro Display",system-ui,"Helvetica Neue",Arial,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,Menlo,"SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--kraft);color:var(--ink);font-family:var(--body);font-size:16px;
+  line-height:1.5;padding:env(safe-area-inset-top) 0 60px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px}
+header{padding:30px 0 18px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+h1{font-family:var(--disp);font-weight:900;font-size:clamp(34px,10vw,50px);line-height:.95;
+  text-transform:uppercase;letter-spacing:-.025em;margin:8px 0 9px;color:var(--accent)}
+.sub{font-size:14.5px;color:var(--ink-soft);max-width:40ch}
+section{padding:26px 0 0}
+h2{font-family:var(--disp);font-weight:900;font-size:21px;text-transform:uppercase;
+  letter-spacing:-.015em;margin-bottom:6px}
+.lede{font-size:14px;color:var(--ink-soft);margin-bottom:18px;max-width:44ch}
+label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+input,select{font-family:var(--mono);font-size:17px;font-weight:600;background:#fff;
+  border:1.5px solid var(--kraft-deep);border-radius:2px;padding:11px 10px;color:var(--ink);width:100%}
+select{font-size:14px;-webkit-appearance:none;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-soft) 50%),linear-gradient(135deg,var(--ink-soft) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:32px}
+input:focus,select:focus{outline:2.5px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.field{display:flex;flex-direction:column;gap:5px}
+button{font-family:var(--mono);font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;
+  cursor:pointer;background:var(--ink);color:var(--kraft);border:0;border-radius:2px;padding:12px 15px;margin-top:11px}
+button:active{transform:translateY(1px)}
+button:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+button.copied{background:var(--olive)}
+button.ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--kraft-deep)}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:3px;padding:17px}
+footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.msg{background:var(--card);border:1.5px solid var(--kraft-deep);border-left:5px solid var(--marker);
+  border-radius:3px;padding:15px;margin-bottom:14px}
+.msg-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
+.msg-when{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.code{font-family:var(--mono);font-size:12px;font-weight:600;background:var(--ink);color:var(--kraft);
+  padding:3px 8px;border-radius:2px;letter-spacing:.04em}
+.msg-title{font-weight:600;font-size:15.5px;display:block;margin-bottom:3px}
+.msg-why{font-size:13px;color:var(--ink-soft);margin-bottom:11px}
+.msg-body{font-size:14.5px;white-space:pre-wrap;background:#fff;border:1px solid var(--kraft-deep);
+  border-radius:2px;padding:12px}
+.howto{background:var(--card);border:2px solid var(--ink);border-radius:3px;padding:17px;margin-bottom:22px}
+.howto h3{font-family:var(--disp);font-weight:900;font-size:16px;text-transform:uppercase;
+  letter-spacing:-.01em;margin-bottom:9px}
+.howto ol{margin-left:18px;font-size:14px;display:grid;gap:6px;color:var(--ink-soft)}
+.howto ol b{color:var(--ink)}
+.howto p{font-size:13px;color:var(--ink-soft);margin-top:11px;line-height:1.55}
+</style></head><body><div class="wrap">
+<header>
+  <div class="eyebrow">Anti-annulation</div>
+  <h1>Les mots<br>qui tiennent<br>la mission</h1>
+  <p class="sub">Le client annule parce qu'il n'a pas compris le fonctionnement. Occupe le silence entre la réservation et le jour J.</p>
+</header>
+
+<section>
+  <div class="howto">
+    <h3>Mettre ces messages dans ton clavier</h3>
+    <ol>
+      <li>Réglages → <b>Général</b> → <b>Clavier</b> → <b>Remplacement de texte</b></li>
+      <li>Touche <b>+</b> en haut à droite</li>
+      <li>Dans <b>Expression</b>, colle le message (bouton Copier ci-dessous)</li>
+      <li>Dans <b>Raccourci</b>, tape le code noir (ex. <b>yj1</b>)</li>
+      <li>Enregistrer, puis recommencer pour les 8</li>
+    </ol>
+    <p>Ensuite tu tapes trois lettres n'importe où — Yoojo, SMS, WhatsApp — et le message complet apparaît. Ça marche sans réseau et se synchronise sur tous tes appareils.</p>
+  </div>
+</section>
+
+<section>
+<div class="msg" style="border-left-color:var(--marker)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--marker)">Dès la réservation</span><span class="code">yj1</span></div>
+  <span class="msg-title">Poser le cadre</span>
+  <p class="msg-why">Supprime les trois malentendus qui provoquent les annulations.</p>
+  <div class="msg-body">Bonjour [Prénom], merci pour votre réservation. C'est noté, je bloque la date du [date] à [heure] dans mon agenda.
+
+Trois choses pour que tout soit clair :
+• Ma prestation est facturée à l'heure. Sur la base de ce que vous décrivez, je table sur [X] h, soit environ [montant] €. Si on va plus vite, vous payez moins.
+• Yoojo prélève le montant 24 h avant l'intervention. Pensez à vérifier que votre carte est bien approvisionnée à ce moment-là, sinon la réservation saute automatiquement.
+• À la fin, vous validez la prestation dans l'application : c'est ce qui déclenche mon paiement.
+
+Une question d'ici là ? Écrivez-moi ici, je réponds vite.</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--marker)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--marker)">Dès la réservation</span><span class="code">yjq</span></div>
+  <span class="msg-title">Les 6 questions</span>
+  <p class="msg-why">Elles déterminent 90 % du temps réel sur place.</p>
+  <div class="msg-body">Pour que la journée se passe sans surprise :
+1. Étages départ et arrivée, ascenseur ou non ?
+2. Distance entre la porte et le camion ?
+3. Volume approximatif — plutôt studio, T2, T3 ?
+4. Meubles lourds ou hors normes (piano, canapé d'angle, frigo américain, coffre-fort) ?
+5. Les cartons sont-ils déjà faits et fermés ?
+6. Meubles à démonter ?</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--marker)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--marker)">J−3</span><span class="code">yj3</span></div>
+  <span class="msg-title">Ouvrir la porte de sortie</span>
+  <p class="msg-why">Proposer le report évite l'annulation sèche.</p>
+  <div class="msg-body">Bonjour [Prénom], on se voit dans 3 jours, le [date] à [heure]. Tout est toujours bon de votre côté ?
+
+Petit rappel : le prélèvement de [montant] € se fera automatiquement la veille. Si quelque chose a changé, dites-le-moi maintenant, je peux décaler sans problème.</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--marker)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--marker)">J−1</span><span class="code">yj0</span></div>
+  <span class="msg-title">Confirmer et rassurer</span>
+  <p class="msg-why">Annoncer le prélèvement évite le réflexe de recul.</p>
+  <div class="msg-body">[Prénom], je confirme demain [heure] au [adresse].
+
+Je viens avec mon véhicule, diable, sangles et couvertures de protection. Prévoyez une place de stationnement à proximité si possible.
+
+Le prélèvement passe aujourd'hui : si vous recevez une alerte de votre banque, c'est normal.</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--marker)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--marker)">Le matin même</span><span class="code">yjm</span></div>
+  <span class="msg-title">Se mettre en route</span>
+  <p class="msg-why">Dernier verrou. Un client qui répond ici n'annulera pas.</p>
+  <div class="msg-body">Bonjour [Prénom], je pars vers vous, arrivée prévue à [heure]. À tout de suite !</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--tape)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--tape)">Candidature</span><span class="code">yjc</span></div>
+  <span class="msg-title">Désamorcer avant la réservation</span>
+  <p class="msg-why">Pour les annonces qui demandent plusieurs personnes.</p>
+  <div class="msg-body">Précision utile : sur Yoojo, chaque prestataire se réserve séparément. Pour votre volume il vous en faudra [2 / 3]. Et le paiement est prélevé automatiquement 24 h avant l'intervention, il n'y a rien à régler sur place.</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--olive)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--olive)">Fin de mission</span><span class="code">yjf</span></div>
+  <span class="msg-title">Déclencher le paiement</span>
+  <p class="msg-why">Ton paiement dépend d'un clic du client. Dis-le avant de repartir.</p>
+  <div class="msg-body">Voilà, tout est en place. Prenez le temps de vérifier que rien ne manque et que tout est en bon état.
+
+Pour clôturer, il suffit de valider la prestation sur l'application : ça déclenche le paiement. Si on a dépassé le temps prévu, vous pouvez ajouter les heures au même endroit.
+
+Et si vous êtes satisfait, un avis m'aide énormément. Bonne installation !</div>
+  <button type="button">Copier</button>
+</div>
+<div class="msg" style="border-left-color:var(--olive)" data-msg>
+  <div class="msg-top"><span class="msg-when" style="color:var(--olive)">J+2</span><span class="code">yjr</span></div>
+  <span class="msg-title">Relancer la validation</span>
+  <p class="msg-why">Sans validation, ton argent reste bloqué.</p>
+  <div class="msg-body">Bonjour [Prénom], j'espère que tout va bien depuis l'intervention. Petit rappel : la prestation n'est pas encore validée sur l'application. Un clic de votre côté et c'est réglé. Merci !</div>
+  <button type="button">Copier</button>
+</div>
+</section>
+<footer>Kit terrain Yoojo · Nishan</footer>
+</div>
+
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+var store={
+  get:function(k){
+    if(window.storage&&window.storage.get){
+      return window.storage.get(k).then(function(r){return r?r.value:null},function(){return local(k);});
+    }
+    return Promise.resolve(local(k));
+  },
+  set:function(k,v){
+    if(window.storage&&window.storage.set){
+      return window.storage.set(k,v).catch(function(){setLocal(k,v);});
+    }
+    setLocal(k,v);return Promise.resolve();
+  },
+  del:function(k){
+    if(window.storage&&window.storage.delete){
+      return window.storage.delete(k).catch(function(){delLocal(k);});
+    }
+    delLocal(k);return Promise.resolve();
+  }
+};
+function local(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function setLocal(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function delLocal(k){try{localStorage.removeItem(k);}catch(e){}}
+</script>
+
+<script>
+document.querySelectorAll('[data-msg]').forEach(function(b){
+  var btn=b.querySelector('button');
+  btn.addEventListener('click',function(){
+    var t=b.querySelector('.msg-body').innerText;
+    var f=function(){btn.textContent='Copi\u00E9';btn.classList.add('copied');
+      setTimeout(function(){btn.textContent='Copier';btn.classList.remove('copied');},1600);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(f,function(){sec(t,f);});
+    }else sec(t,f);
+  });
+});
+function sec(t,f){var z=document.createElement('textarea');z.value=t;z.style.position='fixed';z.style.opacity='0';
+  document.body.appendChild(z);z.select();try{document.execCommand('copy');f();}catch(e){}document.body.removeChild(z);}
+</script></body></html>
