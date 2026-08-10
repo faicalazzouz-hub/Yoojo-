@@ -96,7 +96,7 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
 <header>
   <div class="eyebrow">Avant de postuler</div>
   <h1>Quel taux<br>je propose ?</h1>
-  <p class="sub">Le créneau est fixé par le client. Ton seul levier, c'est le prix — et savoir si le temps annoncé tient debout.</p>
+  <p class="sub">C'est le coéquipier qui va en mission, pas toi. Ce calculateur te montre ta marge une fois sa rémunération et ta part de carburant payées.</p>
 </header>
 
 <section>
@@ -127,7 +127,10 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
           <input type="number" id="m-tg" value="1" min="0" step="1" inputmode="numeric"></div>
       </div>
       <label class="chk"><input type="checkbox" id="m-camion" checked> Besoin d'amener un camion</label>
-      <label class="chk"><input type="checkbox" id="m-demont"> Démontage nécessaire</label>
+      <label class="chk"><input type="checkbox" id="m-demont"> Démontage au départ</label>
+      <label class="chk"><input type="checkbox" id="m-remont"> Remontage à l'arrivée</label>
+      <label class="chk"><input type="checkbox" id="m-lourd"> Objet très lourd ou volumineux (piano, coffre-fort, électroménager encastré…)</label>
+      <label class="chk"><input type="checkbox" id="m-fragile"> Objet fragile nécessitant un emballage soigné</label>
     </div>
 
     <div id="p-demenagement" style="display:none">
@@ -150,6 +153,7 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
     </div>
     <label class="chk"><input type="checkbox" id="a-asc1" checked> Ascenseur au départ</label>
     <label class="chk"><input type="checkbox" id="a-asc2" checked> Ascenseur à l'arrivée</label>
+    <label class="chk"><input type="checkbox" id="a-acces"> Accès difficile (plus de 30 m ou pas de stationnement proche)</label>
 
     <div class="sect">Distances</div>
     <div class="grid2">
@@ -163,10 +167,14 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
       <div class="chip" data-km="20">Autre bout<span>≈ 20 km</span></div>
       <div class="chip" data-km="40">Loin<span>≈ 40 km</span></div>
     </div>
-    <label class="chk"><input type="checkbox" id="a-derniere"> Dernière mission de la journée, je rentre après</label>
+    <label class="chk"><input type="checkbox" id="a-derniere"> <span id="lbl-derniere">Dernière mission de la journée, je rentre après</span></label>
     <div class="grid2" id="bloc-retour" style="display:none;margin-top:9px">
       <div class="field full"><label for="a-retourkm">De l'arrivée jusqu'à chez moi (km)</label>
         <input type="number" id="a-retourkm" value="15" min="0" step="1" inputmode="decimal"></div>
+    </div>
+    <div class="grid2" style="margin-top:9px">
+      <div class="field full"><label for="a-peage">Péages estimés (€) — <span id="peage-suggestion">0 €</span> suggéré</label>
+        <input type="number" id="a-peage" value="0" min="0" step="1" inputmode="decimal" placeholder="0"></div>
     </div>
 
     <div class="sect">Contexte</div>
@@ -183,7 +191,9 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
         <div class="taux"><div class="n" id="o-taux">—</div><div class="l">Taux à proposer</div></div>
         <div><div class="n" id="o-total">—</div><div class="l">Total facturé</div></div>
         <div><div class="n" id="o-heures">—</div><div class="l">Durée réelle estimée</div></div>
-        <div><div class="n" id="o-reel">—</div><div class="l">Net réel par heure</div></div>
+        <div><div class="n" id="o-remun">—</div><div class="l">Rémunération coéquipier</div></div>
+        <div class="taux" style="background:var(--olive)!important"><div class="n" id="o-marge">—</div><div class="l">Ta marge nette</div></div>
+        <div><div class="n" id="o-margeh">—</div><div class="l">Marge nette par heure</div></div>
       </div>
       <div class="detail" id="o-detail"></div>
       <div id="o-alertes"></div>
@@ -191,7 +201,7 @@ footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--kraft-deep);f
       <button type="button" id="o-copy">Copier la candidature</button>
       <p class="cap" style="margin-top:9px">Le message ne contient aucun prix : ton taux se saisit dans le champ tarif de Yoojo. Message volontairement court : le client compare plusieurs profils, il survole.</p>
     </div>
-    <p class="cap">Base 55 €/h camion inclus, 45 €/h sans. +5 par majoration, +5 par heure de dépassement prévisible, −5 si plus de 8 candidats. Plafond 70 €/h, plancher 40 €/h. Net calculé après 7 % de frais Yoojo et 0,20 €/km sur l'approche et la mission. Le retour n'est compté que sur la dernière mission de la journée, avec la distance réelle que tu saisis.</p>
+    <p class="cap">Base 55 €/h camion inclus, 45 €/h sans. +5 par majoration, +5 par heure de dépassement prévisible, −5 si plus de 8 candidats. Plafond 70 €/h, plancher 40 €/h. Le coéquipier est rémunéré 20 €/h sur les 4 premières heures, 15 €/h au-delà, sur les heures réellement travaillées (mission + trajets). Tu prends en charge 50 % du carburant sur justificatif et les péages ; Yoojo garde 7 % du montant facturé. Ta marge nette par heure est calculée sur les heures du coéquipier, pas les tiennes.</p>
   </div>
 </section>
 <footer>Kit terrain Yoojo · Nishan</footer>
@@ -226,9 +236,11 @@ function delLocal(k){try{localStorage.removeItem(k);}catch(e){}}
 
 <script>
 var FRAIS=0.07,COUT_KM=0.20,MARGE=0.30,PLAFOND=70,PLANCHER=40;
+var REMUN_SEUIL=4,REMUN_T1=20,REMUN_T2=15,PART_CARBURANT=0.5;
+function remuneration(h){return h<=REMUN_SEUIL ? h*REMUN_T1 : REMUN_SEUIL*REMUN_T1+(h-REMUN_SEUIL)*REMUN_T2;}
 var mode='meuble',approche=4;
 function v(id){var e=document.getElementById(id);return !e?0:(e.type==='checkbox'?e.checked:(parseFloat(e.value)||0));}
-function vitesse(km){return km<=15?20:(km<=40?32:50);}
+function vitesse(km){return km<=15?20:(km<=40?32:(km<=90?50:85));}
 function hh(x){if(x<=0)return '0 h 00';var m=Math.round(x*60);return Math.floor(m/60)+' h '+String(m%60).padStart(2,'0');}
 
 document.querySelectorAll('.tab').forEach(function(t){
@@ -249,6 +261,9 @@ function maj(){
     camion=v('m-camion');
     if(camion)reelH+=0.5;
     if(v('m-demont'))reelH+=0.5;
+    if(v('m-remont'))reelH+=0.42;
+    if(v('m-lourd'))reelH+=0.75;
+    if(v('m-fragile'))reelH+=0.33;
   } else {
     reelH=v('d-vol')*0.25;
     camion=v('d-camion');
@@ -256,6 +271,7 @@ function maj(){
     if(v('d-cartons'))reelH+=1;
     if(camion)reelH+=0.5;
   }
+  if(v('a-acces'))reelH+=0.33;
   reelH+=v('a-etage1')*(v('a-asc1')?0.12:0.4);
   reelH+=v('a-etage2')*(v('a-asc2')?0.12:0.4);
   var inter=v('a-inter'),tInter=inter/vitesse(inter);
@@ -277,45 +293,68 @@ function maj(){
   var total=taux*creneau;
   var aller=approche,retour=v('a-derniere')?v('a-retourkm'):0;
   var kmTotal=aller+inter+retour;
-  var net=total*(1-FRAIS)-kmTotal*COUT_KM;
+  var peageSuggere=inter>60?Math.round((inter-60)*0.10):0;
+  document.getElementById('peage-suggestion').textContent=peageSuggere+' \u20AC';
+  var peage=v('a-peage');
   var tPerso=aller/vitesse(aller)+retour/vitesse(retour);
   var engage=Math.max(creneau,reelH)+tPerso+MARGE;
-  var reel=engage>0?net/engage:0;
+
+  var fuelTotal=kmTotal*COUT_KM;
+  var fuelPart=fuelTotal*PART_CARBURANT;
+  var remun=remuneration(engage);
+
+  var netYoojo=total*(1-FRAIS);
+  var marge=netYoojo-remun-fuelPart-peage;
+  var margeH=engage>0?marge/engage:0;
 
   var totalSup=taux*reelH;
-  var netSup=totalSup*(1-FRAIS)-kmTotal*COUT_KM;
-  var reelSup=engage>0?netSup/engage:0;
+  var netYoojoSup=totalSup*(1-FRAIS);
+  var margeSup=netYoojoSup-remun-fuelPart-peage;
+  var margeHSup=engage>0?margeSup/engage:0;
+
+  document.getElementById('lbl-derniere').textContent = inter>80
+    ? 'Je reviens le jour même (sinon, prévoir une nuit sur place)'
+    : 'Dernière mission de la journée, je rentre après';
 
   document.getElementById('o-taux').textContent=taux+' \u20AC';
   document.getElementById('o-total').textContent=total.toFixed(0)+' \u20AC';
   document.getElementById('o-heures').textContent=hh(reelH);
-  document.getElementById('o-reel').textContent=reel.toFixed(0)+' \u20AC';
+  document.getElementById('o-remun').textContent=remun.toFixed(0)+' \u20AC';
+  document.getElementById('o-marge').textContent=marge.toFixed(0)+' \u20AC';
+  document.getElementById('o-margeh').textContent=margeH.toFixed(0)+' \u20AC';
 
-  var d='<div>Temps engag\u00E9 <b>'+hh(engage)+'</b> \u00B7 dont '+hh(tPerso)+' de trajet perso</div>'+
-    '<div>Kilom\u00E8tres <b>'+kmTotal.toFixed(0)+' km</b> ('+aller.toFixed(0)+' approche, '+inter.toFixed(0)+' mission'+(retour>0?', '+retour.toFixed(0)+' retour':'')+') \u00B7 '+(kmTotal*COUT_KM).toFixed(0)+' \u20AC</div>'+
-    '<div>Net encaiss\u00E9 <b>'+net.toFixed(0)+' \u20AC</b> apr\u00E8s frais et carburant</div>';
+  var d='<div>Temps engag\u00E9 par le co\u00E9quipier <b>'+hh(engage)+'</b> \u00B7 dont '+hh(tPerso)+' de trajet</div>'+
+    '<div>R\u00E9mun\u00E9ration : '+REMUN_SEUIL+'h \u00E0 '+REMUN_T1+' \u20AC/h'+(engage>REMUN_SEUIL?' + '+hh(engage-REMUN_SEUIL)+' \u00E0 '+REMUN_T2+' \u20AC/h':'')+' = <b>'+remun.toFixed(0)+' \u20AC</b></div>'+
+    '<div>Carburant total '+fuelTotal.toFixed(0)+' \u20AC, ta part (50 %) <b>'+fuelPart.toFixed(0)+' \u20AC</b>'+(peage>0?' + '+peage.toFixed(0)+' \u20AC de p\u00E9age \u00E0 ta charge':'')+'</div>'+
+    '<div>Yoojo verse <b>'+netYoojo.toFixed(0)+' \u20AC</b> (apr\u00E8s 7 % de frais) sur les '+hh(creneau)+' factur\u00E9es</div>';
   if(depass>0){
-    d+='<div style="color:var(--tape)">Si heures sup accept\u00E9es : <b style="color:var(--tape)">'+totalSup.toFixed(0)+' \u20AC</b> soit '+reelSup.toFixed(0)+' \u20AC/h r\u00E9els</div>';
+    d+='<div style="color:var(--tape)">Si heures sup accept\u00E9es : facturation '+totalSup.toFixed(0)+' \u20AC, ta marge passerait \u00E0 <b style="color:var(--tape)">'+margeSup.toFixed(0)+' \u20AC</b> ('+margeHSup.toFixed(0)+' \u20AC/h)</div>';
   }
   document.getElementById('o-detail').innerHTML=d;
 
   var al='';
   if(depass>=1){
-    al+='<div class="alerte ko">Le cr\u00E9neau est sous-estim\u00E9 de '+hh(depass)+'. Tu ne peux pas proposer plus d\u2019heures : ton seul levier est le prix, et pr\u00E9venir le client d\u00E8s la candidature pour qu\u2019il accepte les heures sup le jour J.</div>';
+    al+='<div class="alerte ko">Le cr\u00E9neau est sous-estim\u00E9 de '+hh(depass)+'. Le co\u00E9quipier doit \u00EAtre pay\u00E9 pour ces heures qu\u2019il travaille vraiment, que le client accepte ou non de payer plus : si le client refuse, ta marge encaisse tout le choc. Pr\u00E9viens-le d\u00E8s la candidature.</div>';
   } else if(depass>0){
-    al+='<div class="alerte mid">L\u00E9ger d\u00E9passement pr\u00E9visible ('+hh(depass)+'). Annonce-le pendant la mission, pas \u00E0 la fin.</div>';
+    al+='<div class="alerte mid">L\u00E9ger d\u00E9passement pr\u00E9visible ('+hh(depass)+'). \u00C0 faire annoncer par le co\u00E9quipier pendant la mission, pas \u00E0 la fin.</div>';
   } else {
     al+='<div class="alerte ok">Le cr\u00E9neau annonc\u00E9 est r\u00E9aliste.</div>';
   }
 
-  if(reel>=35)al+='<div class="alerte ok">Bonne mission au tarif propos\u00E9. Poste sans h\u00E9siter.</div>';
-  else if(reel>=28)al+='<div class="alerte mid">Correct. \u00C0 prendre si ta journ\u00E9e n\u2019est pas d\u00E9j\u00E0 remplie par mieux.</div>';
-  else al+='<div class="alerte ko">Sous ton seuil m\u00EAme \u00E0 '+taux+' \u20AC/h. Le cr\u00E9neau est trop court ou les trajets trop longs \u2014 passe ton tour.</div>';
+  if(margeH>=20)al+='<div class="alerte ok">Bonne marge pour ce que tu factures. Poste sans h\u00E9siter.</div>';
+  else if(margeH>=10)al+='<div class="alerte mid">Marge correcte, sans plus. \u00C0 prendre si tu n\u2019as pas mieux \u00E0 proposer au co\u00E9quipier ce jour-l\u00E0.</div>';
+  else if(margeH>=0)al+='<div class="alerte ko">Marge faible \u00E0 '+margeH.toFixed(0)+' \u20AC/h une fois le co\u00E9quipier pay\u00E9. Les trajets ou le cr\u00E9neau court mangent tout. \u00C0 \u00E9viter sauf besoin de volume.</div>';
+  else al+='<div class="alerte ko">Cette mission te ferait perdre de l\u2019argent (marge n\u00E9gative) une fois le co\u00E9quipier et le carburant pay\u00E9s. Ne poste pas \u00E0 ce tarif.</div>';
 
   if(post>=8)al+='<div class="alerte mid">'+post+' candidats d\u00E9j\u00E0. Le taux a \u00E9t\u00E9 baiss\u00E9 de 5 \u20AC pour rester dans la course, mais v\u00E9rifie que \u00E7a reste rentable.</div>';
   else if(post<=2)al+='<div class="alerte ok">Peu de concurrence. Tiens ton prix, ne brade pas.</div>';
 
   if(approche>=20&&creneau<3)al+='<div class="alerte ko">'+approche.toFixed(0)+' km d\u2019approche pour '+hh(creneau)+' factur\u00E9es. R\u00E8gle n\u00B01 : au-del\u00E0 de 20 km, rien sous 3 h.</div>';
+
+  if(engage>=10)al+='<div class="alerte ko">Pr\u00E8s de '+hh(engage)+' au total, trajet compris. Une seule journ\u00E9e risque d\u2019\u00EAtre trop juste \u2014 pr\u00E9voir une nuit sur place ou r\u00E9partir sur deux jours, et le dire au client avant de confirmer.</div>';
+  else if(engage>=7.5)al+='<div class="alerte mid">'+hh(engage)+' au total, trajet compris. Journ\u00E9e charg\u00E9e : pr\u00E9voir large et surveiller l\u2019heure.</div>';
+
+  if(inter>60&&peage===0)al+='<div class="alerte mid">Trajet probablement \u00E0 p\u00E9age sur cette distance. V\u00E9rifie et renseigne le montant, sinon il sort de ta poche sans \u00EAtre compt\u00E9.</div>';
 
   document.getElementById('o-alertes').innerHTML=al;
 
@@ -336,15 +375,17 @@ function maj(){
   // 2. deux diff\u00E9renciateurs maximum
   var d=[];
   if((!v('a-asc1')&&v('a-etage1')>0)||(!v('a-asc2')&&v('a-etage2')>0))d.push('Escaliers \u00E9troits sans souci');
-  if((mode==='meuble'&&v('m-demont'))||(mode==='demenagement'&&v('d-lourds')))d.push('Je d\u00E9monte et remonte si \u00E7a ne passe pas');
-  if(inter>30)d.push('Trajet longue distance inclus, sans transbordement');
+  if(mode==='meuble'&&v('m-fragile'))d.push('Emballage et protection soign\u00E9s pour les objets fragiles');
+  if((mode==='meuble'&&(v('m-demont')||v('m-remont')))||(mode==='demenagement'&&v('d-lourds')))d.push('Je d\u00E9monte et remonte si \u00E7a ne passe pas');
+  if(inter>90)d.push('Trajet longue distance inclus, sans transbordement');
   if(mode==='demenagement'&&v('d-cartons'))d.push('Je peux aider \u00E0 finir les cartons');
   if(d.length)L.push(d.slice(0,2).join('. ')+'.');
 
   // 3. co\u00E9quipier, sur les missions physiques
   var lourd = (depass>=1)
     || (mode==='demenagement' && (v('d-vol')>=15 || v('d-lourds')))
-    || (mode==='meuble' && v('m-tg')>=1)
+    || (mode==='meuble' && (v('m-tg')>=1 || v('m-lourd')))
+    || v('a-acces')
     || ((!v('a-asc1')&&v('a-etage1')>=2)||(!v('a-asc2')&&v('a-etage2')>=2));
   if(lourd)L.push('Co\u00E9quipier possible moyennant un suppl\u00E9ment si vous voulez aller plus vite, dites-le-moi.');
 
