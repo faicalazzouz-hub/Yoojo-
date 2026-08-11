@@ -157,6 +157,13 @@ select.statut{width:100%;background:var(--bg);border:1.5px solid var(--border);b
       </div>
       <div class="grid2">
         <div class="field-ic">
+          <label for="j-peage">Péages (€)</label>
+          <input type="number" id="j-peage" min="0" step="1" inputmode="decimal" placeholder="0">
+          <span class="ic"><svg class="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.5a6 6 0 1 0 0 11"/><line x1="3" y1="10" x2="14" y2="10"/><line x1="3" y1="14" x2="12" y2="14"/></svg></span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field-ic">
           <label for="j-lieu">Ville</label>
           <input type="text" id="j-lieu" placeholder="Paris">
           <span class="ic"><svg class="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
@@ -211,7 +218,7 @@ select.statut{width:100%;background:var(--bg);border:1.5px solid var(--border);b
     <button type="button" class="btn-ghost" id="j-export"><svg class="" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Copier tout le journal</button>
     <button type="button" class="btn-ghost danger" id="j-reset"><svg class="" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> Tout effacer</button>
     <div class="info-box">
-      <b>Comment c'est calculé :</b> le net réel par heure retire 7 % de frais Yoojo et 0,20 €/km du montant encaissé, puis le rapporte au temps réellement engagé, trajet compris.<br><br>
+      <b>Comment c'est calculé :</b> ta marge = le montant facturé, moins 7 % de frais Yoojo, moins la rémunération du coéquipier (20 €/h les 4 premières heures puis 15 €/h, sur la durée de la mission), moins ta part de carburant (50 %) et les péages.<br><br>
       <b>Sauvegarde :</b> ces données ne quittent jamais ton téléphone. Avant de changer d'appareil, utilise « Copier tout le journal » et colle le résultat dans une note.
     </div>
   </section>
@@ -247,12 +254,29 @@ function local(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function setLocal(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function delLocal(k){try{localStorage.removeItem(k);}catch(e){}}
 
-var FRAIS=0.07, VITESSE=25, COUT_KM=0.20, MARGE=0.25, CLE='yoojo:missions';
+var FRAIS=0.07, COUT_KM=0.20, CLE='yoojo:missions';
+var REMUN_SEUIL=4, REMUN_T1=20, REMUN_T2=15, PART_CARBURANT=0.5;
 var missions=[], activeTab='accueil', activeFilter='tout', voirToutOn=false;
 
-function calcul(m,d,k){
-  var t=(2*k)/VITESSE, e=d+t+MARGE, n=m*(1-FRAIS)-(2*k*COUT_KM);
-  return {trajet:t, engage:e, net:n, taux:e>0?n/e:0};
+function remuneration(h){
+  return h<=REMUN_SEUIL ? h*REMUN_T1 : REMUN_SEUIL*REMUN_T1+(h-REMUN_SEUIL)*REMUN_T2;
+}
+
+// m = mission. Le coéquipier est payé sur la durée de la mission.
+// Les anciennes missions sans "peage" sont traitées comme un péage à 0.
+function calcul(m){
+  var km = m.km || 0;
+  var engage = m.duree;
+  var peage = m.peage || 0;
+  var fuelPart = (2*km*COUT_KM) * PART_CARBURANT;
+  var remun = remuneration(engage);
+  var netYoojo = m.montant * (1-FRAIS);
+  var marge = netYoojo - remun - fuelPart - peage;
+  return {
+    engage: engage, remun: remun, fuelPart: fuelPart, peage: peage,
+    netYoojo: netYoojo, marge: marge,
+    margeH: engage>0 ? marge/engage : 0
+  };
 }
 function hh(x){var m=Math.round(x*60);return Math.floor(m/60)+' h '+String(m%60).padStart(2,'0');}
 function eur0(x){return Math.round(x).toLocaleString('fr-FR')+' €';}
@@ -273,8 +297,35 @@ function initials(s){
 var st=document.getElementById('j-status');
 function dire(t){st.textContent=t;setTimeout(function(){st.textContent='';},2200);}
 
+// Missions d'août déjà réalisées, chargées une seule fois : uniquement si
+// le journal n'a jamais rien enregistré. Si tu effaces tout, elles ne reviennent pas.
+var SEED=[
+ {date:'2026-08-10',lieu:'Asnieres',      montant:75,   duree:2,   km:11,peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Evry',          montant:75,   duree:1.5, km:20,peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Paris',         montant:67.5, duree:1.5, km:2, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Neuilly',       montant:75,   duree:1.5, km:5, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Vitry',         montant:90,   duree:2,   km:58,peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Malakoff',      montant:75,   duree:1.5, km:16,peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Combs la ville',montant:82.5, duree:1.5, km:1, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Paris',         montant:50,   duree:1,   km:17,peage:0,statut:'annule'},
+ {date:'2026-08-10',lieu:'Les lilas',     montant:90,   duree:2,   km:3, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Aigremont',     montant:55,   duree:1,   km:1, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Aubervilliers', montant:275,  duree:5.5, km:3, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Ballancourt',   montant:67.5, duree:1.5, km:20,peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Paris',         montant:75,   duree:1.5, km:1, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Montmagny',     montant:137.5,duree:2,   km:28,peage:0,statut:'annule'},
+ {date:'2026-08-10',lieu:'Puteaux',       montant:90,   duree:2.5, km:1, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Paris',         montant:81,   duree:1.5, km:6, peage:0,statut:'paye'},
+ {date:'2026-08-10',lieu:'Paris',         montant:50,   duree:1,   km:20,peage:0,statut:'paye'}
+];
+
 store.get(CLE).then(function(v){
-  try{missions=v?JSON.parse(v):[];}catch(e){missions=[];}
+  if(v===null||v===undefined){
+    missions=SEED.slice();
+    sauver();
+  } else {
+    try{missions=v?JSON.parse(v):[];}catch(e){missions=[];}
+  }
   render();
 });
 function sauver(){store.set(CLE,JSON.stringify(missions));}
@@ -285,15 +336,16 @@ function kpiBloc(cls,icon,lbl,val){
 }
 
 function histRow(m,i){
-  var r=calcul(m.montant,m.duree,m.km);
+  var r=calcul(m);
   var color=avatarColor(m.lieu||'?');
-  var tauxTxt=m.statut==='annule' ? 'Annulée' : eur2(r.taux)+'/h';
+  var margeTxt=m.statut==='annule' ? 'Annulée' : eur0(r.marge);
+  var negatif = m.statut!=='annule' && r.marge < 0;
   return '<div class="hist-row">'+
     '<div class="avatar" style="background:'+color+'">'+initials(m.lieu)+'</div>'+
     '<div class="hist-mid"><div class="hist-city">'+(m.lieu||'Mission')+'</div>'+
-      '<div class="hist-sub">'+hh(m.duree)+' · '+m.km+' km</div></div>'+
-    '<div class="hist-nums"><div class="hist-taux'+(m.statut==='annule'?' annule':'')+'">'+tauxTxt+'</div>'+
-      '<div class="hist-montant">'+eur0(m.montant)+'</div></div>'+
+      '<div class="hist-sub">'+hh(m.duree)+' · '+m.km+' km'+(m.statut!=='annule'?' · '+eur0(r.remun)+' au coéquipier':'')+'</div></div>'+
+    '<div class="hist-nums"><div class="hist-taux'+((m.statut==='annule'||negatif)?' annule':'')+'">'+margeTxt+'</div>'+
+      '<div class="hist-montant">'+(m.statut==='annule'? eur0(m.montant) : eur2(r.margeH)+'/h')+'</div></div>'+
     '<button class="hist-del" data-i="'+i+'">'+ '<svg class="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>' +'</button>'+
   '</div>';
 }
@@ -311,20 +363,23 @@ function render(){
   var payees=missions.filter(function(m){return m.statut==='paye';});
   var ca=payees.reduce(function(s,m){return s+m.montant;},0);
   var heures=payees.reduce(function(s,m){return s+m.duree;},0);
-  var netTotal=0, engageTotal=0;
-  payees.forEach(function(m){var r=calcul(m.montant,m.duree,m.km);netTotal+=r.net;engageTotal+=r.engage;});
-  var reel=engageTotal>0?netTotal/engageTotal:0;
-  var affiche=heures>0?ca/heures:0;
+  var margeTotal=0, engageTotal=0, remunTotal=0, coutsTotal=0;
+  payees.forEach(function(m){
+    var r=calcul(m);
+    margeTotal+=r.marge; engageTotal+=r.engage;
+    remunTotal+=r.remun; coutsTotal+=r.fuelPart+r.peage;
+  });
+  var margeH=engageTotal>0?margeTotal/engageTotal:0;
   var moy=payees.length?heures/payees.length:0;
   var annulTaux=missions.length?(missions.length-payees.length)/missions.length*100:0;
 
   document.getElementById('j-kpis').innerHTML=
-    kpiBloc('hi',svg_trending(),'Net réel par heure',eur2(reel)+'/h')+
-    kpiBloc('',svg_tag(),'Tarif affiché par heure',eur2(affiche)+'/h')+
-    kpiBloc('',svg_clock(),'Durée moyenne',hh(moy))+
-    kpiBloc('danger',svg_xcircle(),'Taux d\'annulation',Math.round(annulTaux)+' %')+
+    kpiBloc('hi',svg_trending(),'Ta marge nette',eur0(margeTotal))+
+    kpiBloc('',svg_tag(),'Marge par heure',eur2(margeH)+'/h')+
     kpiBloc('',svg_euro(),'Chiffre d\'affaires',eur0(ca))+
-    kpiBloc('',svg_calendar(),'Heures facturées',hh(heures));
+    kpiBloc('',svg_notebook(),'Versé aux coéquipiers',eur0(remunTotal))+
+    kpiBloc('',svg_clock(),'Durée moyenne',hh(moy))+
+    kpiBloc('danger',svg_xcircle(),'Taux d\'annulation',Math.round(annulTaux)+' %');
 
   // historique récent (accueil)
   var recentBox=document.getElementById('j-hist-recent');
@@ -349,20 +404,20 @@ function render(){
     stat2.innerHTML='';
     bars.innerHTML='<div class="empty">Ajoute des missions terminées pour voir l\'analyse.</div>';
   } else {
-    var withTaux=payees.map(function(m){return {m:m, r:calcul(m.montant,m.duree,m.km)};});
-    withTaux.sort(function(a,b){return b.r.taux-a.r.taux;});
+    var withTaux=payees.map(function(m){return {m:m, r:calcul(m)};});
+    withTaux.sort(function(a,b){return b.r.margeH-a.r.margeH;});
     var best=withTaux[0], worst=withTaux[withTaux.length-1];
     stat2.innerHTML=
-      '<div class="card"><div class="lbl">Meilleure mission</div><div class="city">'+(best.m.lieu||'—')+'</div>'+
-      '<div class="taux">'+eur2(best.r.taux)+'/h</div></div>'+
+      '<div class="card"><div class="lbl">Meilleure marge</div><div class="city">'+(best.m.lieu||'—')+'</div>'+
+      '<div class="taux">'+eur2(best.r.margeH)+'/h</div></div>'+
       '<div class="card"><div class="lbl">Moins rentable</div><div class="city">'+(worst.m.lieu||'—')+'</div>'+
-      '<div class="taux">'+eur2(worst.r.taux)+'/h</div></div>';
-    var maxTaux=Math.max.apply(null, withTaux.map(function(x){return x.r.taux;}).concat([1]));
+      '<div class="taux">'+eur2(worst.r.margeH)+'/h</div></div>';
+    var maxTaux=Math.max.apply(null, withTaux.map(function(x){return Math.abs(x.r.margeH);}).concat([1]));
     bars.innerHTML = withTaux.map(function(x){
-      var pct=Math.max(6,Math.round(x.r.taux/maxTaux*100));
-      var color = x.r.taux>=35 ? 'var(--green)' : (x.r.taux>=20 ? 'var(--amber)' : 'var(--red)');
+      var pct=Math.max(6,Math.round(Math.abs(x.r.margeH)/maxTaux*100));
+      var color = x.r.margeH>=20 ? 'var(--green)' : (x.r.margeH>=10 ? 'var(--amber)' : 'var(--red)');
       return '<div class="bar-row"><div class="bar-top"><span class="city">'+(x.m.lieu||'Mission')+'</span>'+
-        '<span class="val">'+eur2(x.r.taux)+'/h</span></div>'+
+        '<span class="val">'+eur2(x.r.margeH)+'/h</span></div>'+
         '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div></div>';
     }).join('');
   }
@@ -375,6 +430,7 @@ function svg_clock(){return `<circle cx="12" cy="12" r="10"/><polyline points="1
 function svg_xcircle(){return `<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`;}
 function svg_euro(){return `<path d="M17 6.5a6 6 0 1 0 0 11"/><line x1="3" y1="10" x2="14" y2="10"/><line x1="3" y1="14" x2="12" y2="14"/>`;}
 function svg_calendar(){return `<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`;}
+function svg_notebook(){return `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`;}
 function wrapIcon(inner){return '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>';}
 (function(){
   var orig=kpiBloc;
@@ -386,12 +442,15 @@ document.getElementById('j-add').addEventListener('click',function(){
   var montant=parseFloat(document.getElementById('j-montant').value);
   var duree=parseFloat(document.getElementById('j-duree').value);
   var km=parseFloat(document.getElementById('j-km').value)||0;
+  var peage=parseFloat(document.getElementById('j-peage').value)||0;
   var lieu=document.getElementById('j-lieu').value.trim();
   var statut=document.getElementById('j-statut').value;
   if(!montant || duree<=0){dire('Renseigne au moins le montant et la durée');return;}
-  missions.push({montant:montant,duree:duree,km:km,lieu:lieu,statut:statut,date:new Date().toISOString().slice(0,10)});
+  missions.push({montant:montant,duree:duree,km:km,peage:peage,
+                 lieu:lieu,statut:statut,date:new Date().toISOString().slice(0,10)});
   document.getElementById('j-montant').value='';
   document.getElementById('j-km').value='';
+  document.getElementById('j-peage').value='';
   document.getElementById('j-lieu').value='';
   document.getElementById('j-duree').value='2';
   sauver(); render(); dire('Mission enregistrée');
@@ -412,8 +471,10 @@ document.querySelectorAll('.filt').forEach(function(f){
 
 // export
 document.getElementById('j-export').addEventListener('click',function(){
-  var t='date;ville;montant;duree;km;statut\n'+missions.map(function(m){
-    return [m.date,m.lieu,m.montant,m.duree,m.km,m.statut].join(';');
+  var t='date;ville;montant;duree;km;peage;statut;remuneration;marge\n'+missions.map(function(m){
+    var r=calcul(m);
+    return [m.date,m.lieu,m.montant,m.duree,m.km,(m.peage||0),m.statut,
+            r.remun.toFixed(2),r.marge.toFixed(2)].join(';');
   }).join('\n');
   var b=this, orig=b.innerHTML;
   var fini=function(){b.innerHTML='Copié'; setTimeout(function(){b.innerHTML=orig;},1600);};
