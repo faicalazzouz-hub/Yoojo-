@@ -77,6 +77,11 @@ The strategy uses concepts that must be coded as exact rules. For each one, chec
 
 All values must be input parameters, not constants.
 
+Thresholds N, X, Y, Z, K and the equal-highs/lows tolerance have no imposed default:
+
+- If the code already defines them, report the values found (file and line) and keep them.
+- If they are missing, do not invent a value silently. Propose them as input parameters with a suggested starting value clearly labeled "suggested, not validated", and list them in the final report (section 16, item 12) for my decision.
+
 | Concept | Reference definition (default) |
 |---|---|
 | Swing high / low | 5-bar fractal on completed candles (2 bars on each side), confirmed only after the 2 right-side bars close |
@@ -132,7 +137,7 @@ Symbol (with suffix), Digits, Point, Bid/Ask, spread, contract size, MODE_TICKSI
 Check:
 
 - **Execution mode.** If the account uses market execution that rejects SL/TP in OrderSend, the code must open the position, then immediately OrderModify to set the SL. If that modification fails after controlled retries, close the position immediately and log a CRITICAL event. Verify which mode IronFX actually uses on the demo account — do not assume.
-- **Tick value.** MODE_TICKVALUE for XAUUSD can be unreliable at startup or on weekends. Validate it: it must be > 0 and consistent with contract size × tick size. If not, reject trades.
+- **Tick value.** MODE_TICKVALUE for XAUUSD can be unreliable at startup or on weekends. Validate it: it must be > 0 and consistent with contract size × tick size **converted into the account currency**. For a USD account, expected TICKVALUE = contract size × tick size. For a non-USD account (e.g. EUR), divide by the current conversion rate (e.g. EURUSD Bid/Ask, or multiply by the USD→account-currency rate) read from the broker; if that conversion rate is unavailable, reject trades. Allow a small tolerance (configurable, default 2%). If the check fails, reject trades. Do not reject trades only because the account currency is not USD.
 - **Exposure.** MT4 allows simultaneous BUY and SELL tickets. Compute long exposure, short exposure, and net exposure from the actual open tickets (symbol + magic). Enforce max 1 net directional position, and block opening an opposite ticket used as a hedge.
 
 ---
@@ -178,10 +183,12 @@ Configuration (inputs, not constants):
 Verify the lot formula independently:
 
 ```
-riskMoney    = AccountEquity() × riskPercent
+riskMoney    = AccountEquity() × riskPercent / 100      // riskPercent = 0.25 means 0.25 %
 lossPerLot   = (SL distance / TICKSIZE) × TICKVALUE + commission per lot
 lots         = floor(riskMoney / lossPerLot / LOTSTEP) × LOTSTEP
 ```
+
+**Check this first:** verify how the code interprets the risk input. If a value such as `0.25` is used without dividing by 100, the EA risks 25% of the account per trade — classify it as CRITICAL. Also check that every risk-related input (per-trade, max per-trade, daily, weekly, drawdown) uses the same convention.
 
 Rules:
 
@@ -213,6 +220,8 @@ Verify against the definitions in section 3:
 1. Mandatory gates — any failure = HOLD: data fresh, session open, no news restriction, spread acceptable, H1 and M15 not contradictory, valid structural SL, R:R ≥ 2, risk engine approval, daily limit not reached, exposure allowed.
 2. Score (0–100): below 70 = reject; 70–79 = watchlist, no entry; 80–89 = eligible; 90–100 = priority.
 3. Execution only if all gates pass AND score ≥ 80.
+
+"Priority" (90–100) only decides which signal is taken when several eligible setups compete on the same completed candle. It **never** increases the lot size, the risk per trade, the number of positions, or bypasses any gate or limit. If the code links score to risk or size, report it as a CRITICAL bug.
 
 Also check:
 
