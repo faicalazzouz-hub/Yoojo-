@@ -1,0 +1,372 @@
+//@version=5
+// XAUUSD Structure & Setups — visual indicator (no orders).
+// Designed for an M15 chart. H1 bias is read from the higher timeframe without repainting.
+// All signals are evaluated on CLOSED candles only.
+// Threshold defaults are "suggested, not validated": adjust them while reviewing the chart.
+indicator("XAUUSD Structure & Setups", shorttitle = "XAU Setups", overlay = true,
+     max_lines_count = 500, max_labels_count = 500, max_boxes_count = 500)
+
+// ─────────────────────────────── Inputs ───────────────────────────────
+g1 = "Structure"
+pivLen   = input.int(2, "Swing: bars on each side", minval = 1, group = g1)
+showSw   = input.bool(true, "Show swings", group = g1)
+showBos  = input.bool(true, "Show BOS / CHOCH", group = g1)
+eqTol    = input.float(0.30, "Equal highs/lows tolerance (price, USD)", minval = 0, step = 0.05, group = g1)
+
+g2 = "Higher-timeframe bias"
+htf      = input.timeframe("60", "Bias timeframe", group = g2)
+showInfo = input.bool(true, "Show info panel", group = g2)
+
+g3 = "Value zone (chart timeframe)"
+emaFastLen = input.int(20, "EMA fast", minval = 1, group = g3)
+emaSlowLen = input.int(50, "EMA slow", minval = 1, group = g3)
+showZone   = input.bool(true, "Show EMA value zone", group = g3)
+
+g4 = "Liquidity levels & sweeps"
+showPD    = input.bool(true, "Previous day high/low (PDH/PDL)", group = g4)
+showPW    = input.bool(true, "Previous week high/low (PWH/PWL)", group = g4)
+showAsia  = input.bool(true, "Asian session high/low", group = g4)
+showEQ    = input.bool(true, "Equal highs/lows (EQH/EQL)", group = g4)
+showSweep = input.bool(true, "Show sweeps", group = g4)
+asiaSess  = input.session("0000-0700", "Asian session (UTC)", group = g4)
+
+g5 = "Compression / breakout / retest"
+atrLen  = input.int(14, "ATR length", minval = 1, group = g5)
+compN   = input.int(8, "N: min candles in range", minval = 3, group = g5)
+compX   = input.float(1.5, "X: max range height (× ATR)", minval = 0.1, step = 0.1, group = g5)
+brkY    = input.float(0.2, "Y: breakout close beyond range (× ATR)", minval = 0, step = 0.05, group = g5)
+brkZ    = input.float(1.2, "Z: max breakout body (× ATR)", minval = 0.1, step = 0.1, group = g5)
+rtK     = input.int(6, "K: retest within (candles)", minval = 1, group = g5)
+rtTol   = input.float(0.15, "Retest tolerance (× ATR)", minval = 0, step = 0.05, group = g5)
+showBox = input.bool(true, "Show compression boxes", group = g5)
+
+g6 = "Signals"
+useTPb   = input.bool(true, "1. Trend pullback", group = g6)
+useSwp   = input.bool(true, "2. Liquidity sweep reversal", group = g6)
+useBR    = input.bool(true, "3. Breakout & retest", group = g6)
+minRR    = input.float(2.0, "Reward:risk for TP", minval = 0.5, step = 0.1, group = g6)
+slBuf    = input.float(0.2, "SL buffer (× ATR)", minval = 0, step = 0.05, group = g6)
+minSL    = input.float(0.5, "Min SL distance (× ATR)", minval = 0, step = 0.1, group = g6)
+maxSL    = input.float(3.0, "Max SL distance (× ATR)", minval = 0.1, step = 0.1, group = g6)
+cooldown = input.int(4, "Min candles between signals (same direction)", minval = 1, group = g6)
+showSLTP = input.bool(true, "Draw entry / SL / TP lines", group = g6)
+
+g7 = "Sessions (UTC)"
+londonSess  = input.session("0700-1600", "London (UTC)", group = g7)
+nySess      = input.session("1300-2100", "New York (UTC)", group = g7)
+tradeLondon = input.bool(true, "Allow signals in London", group = g7)
+tradeNY     = input.bool(true, "Allow signals in New York", group = g7)
+showSessBg  = input.bool(true, "Colour session backgrounds", group = g7)
+
+// ─────────────────────────────── Basics ───────────────────────────────
+atr  = ta.atr(atrLen)
+emaF = ta.ema(close, emaFastLen)
+emaS = ta.ema(close, emaSlowLen)
+conf = barstate.isconfirmed
+
+inSess(s) => not na(time(timeframe.period, s, "UTC"))
+
+inAsia = inSess(asiaSess)
+inLon  = inSess(londonSess)
+inNY   = inSess(nySess)
+
+// ─────────────────────────────── Swings ───────────────────────────────
+// 5-bar fractal by default: confirmed only once the right-side bars have closed.
+ph = ta.pivothigh(high, pivLen, pivLen)
+pl = ta.pivotlow(low, pivLen, pivLen)
+
+var float lastSH    = na
+var int   lastSHBar = na
+var bool  shBroken  = true
+var float lastSL    = na
+var int   lastSLBar = na
+var bool  slBroken  = true
+var float eqhLevel  = na
+var float eqlLevel  = na
+
+if conf and not na(ph)
+    sb = bar_index - pivLen
+    if not na(lastSH) and math.abs(ph - lastSH) <= eqTol
+        eqhLevel := math.max(ph, lastSH)
+        if showEQ
+            line.new(lastSHBar, eqhLevel, sb, eqhLevel, color = color.new(color.purple, 0), style = line.style_dotted)
+            label.new(sb, eqhLevel, "EQH", style = label.style_none, textcolor = color.purple, size = size.tiny)
+    lastSH    := ph
+    lastSHBar := sb
+    shBroken  := false
+
+if conf and not na(pl)
+    sb = bar_index - pivLen
+    if not na(lastSL) and math.abs(pl - lastSL) <= eqTol
+        eqlLevel := math.min(pl, lastSL)
+        if showEQ
+            line.new(lastSLBar, eqlLevel, sb, eqlLevel, color = color.new(color.purple, 0), style = line.style_dotted)
+            label.new(sb, eqlLevel, "EQL", style = label.style_none, textcolor = color.purple, size = size.tiny)
+    lastSL    := pl
+    lastSLBar := sb
+    slBroken  := false
+
+plotshape(showSw and conf and not na(ph), "Swing high", shape.triangledown, location.abovebar, color.new(color.red, 30), offset = -pivLen, size = size.tiny)
+plotshape(showSw and conf and not na(pl), "Swing low", shape.triangleup, location.belowbar, color.new(color.green, 30), offset = -pivLen, size = size.tiny)
+
+// ─────────────────────────────── BOS / CHOCH ───────────────────────────────
+// BOS  = candle CLOSE beyond the last confirmed swing in the trend direction.
+// CHOCH = first candle CLOSE beyond the last confirmed swing against the prior trend.
+var int trend = 0   // 1 = bullish structure, -1 = bearish, 0 = undefined
+
+if conf and not shBroken and not na(lastSH) and close > lastSH
+    isChoch = trend == -1
+    shBroken := true
+    trend := 1
+    if showBos
+        c = isChoch ? color.orange : color.green
+        line.new(lastSHBar, lastSH, bar_index, lastSH, color = c, style = line.style_dashed)
+        label.new(math.round((lastSHBar + bar_index) / 2), lastSH, isChoch ? "CHOCH" : "BOS", style = label.style_label_down, color = color.new(color.white, 100), textcolor = c, size = size.tiny)
+else if conf and not slBroken and not na(lastSL) and close < lastSL
+    isChoch = trend == 1
+    slBroken := true
+    trend := -1
+    if showBos
+        c = isChoch ? color.orange : color.red
+        line.new(lastSLBar, lastSL, bar_index, lastSL, color = c, style = line.style_dashed)
+        label.new(math.round((lastSLBar + bar_index) / 2), lastSL, isChoch ? "CHOCH" : "BOS", style = label.style_label_up, color = color.new(color.white, 100), textcolor = c, size = size.tiny)
+
+// ─────────────────────────────── H1 bias (non-repainting) ───────────────────────────────
+// Bullish = EMA50 > EMA200 AND higher swing high AND higher swing low (opposite for bearish).
+// Returns the value of the last CLOSED higher-timeframe candle.
+f_bias() =>
+    e50  = ta.ema(close, 50)
+    e200 = ta.ema(close, 200)
+    hPh  = ta.pivothigh(high, pivLen, pivLen)
+    hPl  = ta.pivotlow(low, pivLen, pivLen)
+    var float sh1 = na
+    var float sh0 = na
+    var float sl1 = na
+    var float sl0 = na
+    if not na(hPh)
+        sh0 := sh1
+        sh1 := hPh
+    if not na(hPl)
+        sl0 := sl1
+        sl1 := hPl
+    int b = 0
+    if e50 > e200 and sh1 > sh0 and sl1 > sl0
+        b := 1
+    else if e50 < e200 and sh1 < sh0 and sl1 < sl0
+        b := -1
+    nz(b[1])
+
+htfBias = request.security(syminfo.tickerid, htf, f_bias(), lookahead = barmerge.lookahead_on)
+tfWarn  = timeframe.in_seconds() >= timeframe.in_seconds(htf)
+
+// ─────────────────────────────── Value zone ───────────────────────────────
+pF = plot(showZone ? emaF : na, "EMA fast", color.new(color.teal, 20))
+pS = plot(showZone ? emaS : na, "EMA slow", color.new(color.maroon, 20))
+fill(pF, pS, color = emaF > emaS ? color.new(color.teal, 88) : color.new(color.red, 88), title = "Value zone")
+
+// ─────────────────────────────── Liquidity levels ───────────────────────────────
+// Note: TradingView daily/weekly candles follow the data feed's session, not necessarily UTC midnight.
+[pdh, pdl] = request.security(syminfo.tickerid, "D", [high[1], low[1]], lookahead = barmerge.lookahead_on)
+[pwh, pwl] = request.security(syminfo.tickerid, "W", [high[1], low[1]], lookahead = barmerge.lookahead_on)
+
+var float asiaH  = na
+var float asiaL  = na
+var float asiaHf = na
+var float asiaLf = na
+if inAsia and not inAsia[1]
+    asiaH  := high
+    asiaL  := low
+    asiaHf := na
+    asiaLf := na
+else if inAsia
+    asiaH := math.max(asiaH, high)
+    asiaL := math.min(asiaL, low)
+if not inAsia and inAsia[1]
+    asiaHf := asiaH
+    asiaLf := asiaL
+
+asiaLvlH = inAsia ? na : asiaHf
+asiaLvlL = inAsia ? na : asiaLf
+
+plot(showPD and pdh == pdh[1] ? pdh : na, "PDH", color.new(color.gray, 0), style = plot.style_linebr)
+plot(showPD and pdl == pdl[1] ? pdl : na, "PDL", color.new(color.gray, 0), style = plot.style_linebr)
+plot(showPW and pwh == pwh[1] ? pwh : na, "PWH", color.new(color.navy, 0), 2, plot.style_linebr)
+plot(showPW and pwl == pwl[1] ? pwl : na, "PWL", color.new(color.navy, 0), 2, plot.style_linebr)
+plot(showAsia ? asiaLvlH : na, "Asia high", color.new(color.blue, 30), style = plot.style_linebr)
+plot(showAsia ? asiaLvlL : na, "Asia low", color.new(color.blue, 30), style = plot.style_linebr)
+
+// ─────────────────────────────── Sweeps ───────────────────────────────
+// Wick beyond the level AND close back inside (previous close was inside too).
+sweepHigh(lvl) => not na(lvl) and high > lvl and close < lvl and close[1] < lvl
+sweepLow(lvl)  => not na(lvl) and low < lvl and close > lvl and close[1] > lvl
+
+sH1 = sweepHigh(pdh)
+sH2 = sweepHigh(pwh)
+sH3 = sweepHigh(asiaLvlH)
+sH4 = sweepHigh(eqhLevel)
+sL1 = sweepLow(pdl)
+sL2 = sweepLow(pwl)
+sL3 = sweepLow(asiaLvlL)
+sL4 = sweepLow(eqlLevel)
+
+bearSweep = conf and (sH1 or sH2 or sH3 or sH4)
+bullSweep = conf and (sL1 or sL2 or sL3 or sL4)
+
+plotshape(showSweep and bearSweep, "Sweep high", shape.xcross, location.abovebar, color.new(color.fuchsia, 0), text = "SW", textcolor = color.fuchsia, size = size.tiny)
+plotshape(showSweep and bullSweep, "Sweep low", shape.xcross, location.belowbar, color.new(color.fuchsia, 0), text = "SW", textcolor = color.fuchsia, size = size.tiny)
+
+// Equal highs/lows are consumed once swept or closed through.
+if conf and not na(eqhLevel) and (sH4 or close > eqhLevel)
+    eqhLevel := na
+if conf and not na(eqlLevel) and (sL4 or close < eqlLevel)
+    eqlLevel := na
+
+// ─────────────────────────────── Compression / breakout / retest ───────────────────────────────
+rngH    = ta.highest(high, compN)
+rngL    = ta.lowest(low, compN)
+compNow = (rngH - rngL) < compX * atr
+
+var bool  inBox   = false
+var float bTop    = na
+var float bBot    = na
+var int   boxEnd  = -1
+var box   bx      = na
+var int   rtDir   = 0
+var float rtLvl   = na
+var int   rtCount = 0
+
+bool brkBull = false
+bool brkBear = false
+bool retBull = false
+bool retBear = false
+
+if conf
+    // Retest of a previous breakout (checked before a new breakout can reset it).
+    if rtDir != 0
+        rtCount += 1
+        if rtCount > rtK
+            rtDir := 0
+        else if rtDir == 1
+            if close < rtLvl
+                rtDir := 0
+            else if low <= rtLvl + rtTol * atr
+                retBull := true
+                rtDir := 0
+        else
+            if close > rtLvl
+                rtDir := 0
+            else if high >= rtLvl - rtTol * atr
+                retBear := true
+                rtDir := 0
+
+    body = math.abs(close - open)
+    if inBox
+        if close > bTop + brkY * atr and body < brkZ * atr
+            brkBull := true
+            inBox   := false
+            rtDir   := 1
+            rtLvl   := bTop
+            rtCount := 0
+        else if close < bBot - brkY * atr and body < brkZ * atr
+            brkBear := true
+            inBox   := false
+            rtDir   := -1
+            rtLvl   := bBot
+            rtCount := 0
+        else
+            bTop := math.max(bTop, high)
+            bBot := math.min(bBot, low)
+            if bTop - bBot > compX * atr
+                inBox := false
+            else if showBox
+                box.set_top(bx, bTop)
+                box.set_bottom(bx, bBot)
+        if showBox
+            box.set_right(bx, bar_index)
+        if not inBox
+            boxEnd := bar_index
+    else if compNow and bar_index - compN + 1 > boxEnd
+        inBox := true
+        bTop  := rngH
+        bBot  := rngL
+        if showBox
+            bx := box.new(bar_index - compN + 1, bTop, bar_index, bBot, border_color = color.new(color.yellow, 30), bgcolor = color.new(color.yellow, 90))
+
+plotshape(brkBull, "Breakout up", shape.arrowup, location.belowbar, color.new(color.yellow, 0), text = "BRK", textcolor = color.olive, size = size.tiny)
+plotshape(brkBear, "Breakout down", shape.arrowdown, location.abovebar, color.new(color.yellow, 0), text = "BRK", textcolor = color.olive, size = size.tiny)
+plotshape(retBull, "Retest up", shape.circle, location.belowbar, color.new(color.olive, 0), text = "RT", textcolor = color.olive, size = size.tiny)
+plotshape(retBear, "Retest down", shape.circle, location.abovebar, color.new(color.olive, 0), text = "RT", textcolor = color.olive, size = size.tiny)
+
+// ─────────────────────────────── Sessions ───────────────────────────────
+bgcolor(showSessBg and inAsia ? color.new(color.blue, 94) : na, title = "Asia")
+bgcolor(showSessBg and inLon ? color.new(color.orange, 94) : na, title = "London")
+bgcolor(showSessBg and inNY ? color.new(color.green, 94) : na, title = "New York")
+
+sessOK = (tradeLondon and inLon) or (tradeNY and inNY)
+
+// ─────────────────────────────── Signals ───────────────────────────────
+// Gates: closed candle, allowed session, H1 bias in trade direction, valid structural SL distance.
+// Not checked here: news, spread, account risk — the indicator places no orders.
+tpBuy  = useTPb and htfBias == 1 and trend == 1 and emaF > emaS and low <= emaF and close > emaF and close > open
+tpSell = useTPb and htfBias == -1 and trend == -1 and emaF < emaS and high >= emaF and close < emaF and close < open
+swBuy  = useSwp and htfBias == 1 and bullSweep
+swSell = useSwp and htfBias == -1 and bearSweep
+brBuy  = useBR and htfBias == 1 and retBull
+brSell = useBR and htfBias == -1 and retBear
+
+buySetup  = tpBuy or swBuy or brBuy
+sellSetup = tpSell or swSell or brSell
+conflict  = buySetup and sellSetup   // opposite signals → HOLD
+
+buySL   = tpBuy ? lastSL - slBuf * atr : low - slBuf * atr
+sellSL  = tpSell ? lastSH + slBuf * atr : high + slBuf * atr
+buyRisk  = close - buySL
+sellRisk = sellSL - close
+
+var int lastBuyBar  = na
+var int lastSellBar = na
+
+buySig  = conf and not tfWarn and sessOK and buySetup and not conflict and buyRisk >= minSL * atr and buyRisk <= maxSL * atr and (na(lastBuyBar) or bar_index - lastBuyBar >= cooldown)
+sellSig = conf and not tfWarn and sessOK and sellSetup and not conflict and sellRisk >= minSL * atr and sellRisk <= maxSL * atr and (na(lastSellBar) or bar_index - lastSellBar >= cooldown)
+
+f_name(isTP, isSW) => isTP ? "Pullback" : isSW ? "Sweep" : "Breakout-retest"
+
+if buySig
+    lastBuyBar := bar_index
+    tp  = close + minRR * buyRisk
+    txt = "BUY · " + f_name(tpBuy, swBuy) + "\nSL " + str.tostring(buySL, format.mintick) + "\nTP " + str.tostring(tp, format.mintick) + "\nR:R " + str.tostring(minRR, "#.0")
+    label.new(bar_index, low, txt, yloc = yloc.belowbar, style = label.style_label_up, color = color.new(color.green, 10), textcolor = color.white, size = size.small)
+    if showSLTP
+        line.new(bar_index, close, bar_index + 10, close, color = color.gray)
+        line.new(bar_index, buySL, bar_index + 10, buySL, color = color.red)
+        line.new(bar_index, tp, bar_index + 10, tp, color = color.green)
+    alert(syminfo.ticker + " " + txt, alert.freq_once_per_bar_close)
+
+if sellSig
+    lastSellBar := bar_index
+    tp  = close - minRR * sellRisk
+    txt = "SELL · " + f_name(tpSell, swSell) + "\nSL " + str.tostring(sellSL, format.mintick) + "\nTP " + str.tostring(tp, format.mintick) + "\nR:R " + str.tostring(minRR, "#.0")
+    label.new(bar_index, high, txt, yloc = yloc.abovebar, style = label.style_label_down, color = color.new(color.red, 10), textcolor = color.white, size = size.small)
+    if showSLTP
+        line.new(bar_index, close, bar_index + 10, close, color = color.gray)
+        line.new(bar_index, sellSL, bar_index + 10, sellSL, color = color.red)
+        line.new(bar_index, tp, bar_index + 10, tp, color = color.green)
+    alert(syminfo.ticker + " " + txt, alert.freq_once_per_bar_close)
+
+alertcondition(buySig, "BUY setup", "XAUUSD BUY setup on {{interval}} at {{close}}")
+alertcondition(sellSig, "SELL setup", "XAUUSD SELL setup on {{interval}} at {{close}}")
+
+// ─────────────────────────────── Info panel ───────────────────────────────
+var table info = table.new(position.top_right, 2, 5, bgcolor = color.new(color.black, 75), border_width = 1)
+if showInfo and barstate.islast
+    table.cell(info, 0, 0, "Bias " + htf, text_color = color.white, text_size = size.small)
+    table.cell(info, 1, 0, htfBias == 1 ? "BULL" : htfBias == -1 ? "BEAR" : "NEUTRAL", text_color = htfBias == 1 ? color.lime : htfBias == -1 ? color.red : color.silver, text_size = size.small)
+    table.cell(info, 0, 1, "Structure", text_color = color.white, text_size = size.small)
+    table.cell(info, 1, 1, trend == 1 ? "BULL" : trend == -1 ? "BEAR" : "—", text_color = trend == 1 ? color.lime : trend == -1 ? color.red : color.silver, text_size = size.small)
+    table.cell(info, 0, 2, "Session", text_color = color.white, text_size = size.small)
+    table.cell(info, 1, 2, sessOK ? "OPEN" : "CLOSED", text_color = sessOK ? color.lime : color.silver, text_size = size.small)
+    table.cell(info, 0, 3, "News", text_color = color.white, text_size = size.small)
+    table.cell(info, 1, 3, "check calendar manually", text_color = color.orange, text_size = size.small)
+    if tfWarn
+        table.cell(info, 0, 4, "Warning", text_color = color.white, text_size = size.small)
+        table.cell(info, 1, 4, "use a chart TF below " + htf + " (M15)", text_color = color.red, text_size = size.small)
